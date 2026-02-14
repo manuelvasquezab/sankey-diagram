@@ -1,0 +1,70 @@
+table dataset
+	lineageTag: 61a4b841-656d-4399-8a4a-d7356d6d43f1
+
+	column Nivel_Source
+		dataType: int64
+		formatString: 0
+		lineageTag: 57b4828a-99b7-4713-8623-13a1e56c35af
+		summarizeBy: sum
+		sourceColumn: Nivel_Source
+
+		annotation SummarizationSetBy = Automatic
+
+	column Nivel_Target
+		dataType: int64
+		formatString: 0
+		lineageTag: c1ba1219-89c5-490e-826c-7145c25089a5
+		summarizeBy: sum
+		sourceColumn: Nivel_Target
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source
+		dataType: string
+		lineageTag: 5122266f-6f2f-4526-8902-61b3bcc7d205
+		summarizeBy: none
+		sourceColumn: Source
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target
+		dataType: string
+		lineageTag: 1638fc1e-b51b-4f73-9d06-febc6c34549c
+		summarizeBy: none
+		sourceColumn: Target
+
+		annotation SummarizationSetBy = Automatic
+
+	column Kg
+		dataType: double
+		formatString: 0
+		lineageTag: 6e8956a9-c45c-4c05-b074-2057d2aa6183
+		summarizeBy: sum
+		sourceColumn: Kg
+
+		annotation SummarizationSetBy = Automatic
+
+	column Order
+		dataType: int64
+		formatString: 0
+		lineageTag: 45d1cc79-9f6c-4883-bfc9-5551342b5d2e
+		summarizeBy: sum
+		sourceColumn: Order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dataset = m
+		mode: import
+		source =
+				let
+				    Origen = Excel.Workbook(File.Contents("D:\002. MANUEL VASQUEZ\PowerBI\Sankey_Diagram\dataset_Example.xlsx"), null, true),
+				    Tabla2_Table = Origen{[Item="data",Kind="Sheet"]}[Data],
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Tabla2_Table, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"Nivel_Source", Int64.Type}, {"Nivel_Target", Int64.Type}, {"Source", type text}, {"Target", type text}, {"Kg", type number}, {"Order", Int64.Type}})
+				in
+				    #"Tipo cambiado"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

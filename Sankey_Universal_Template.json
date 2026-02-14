@@ -1,0 +1,995 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "width": 1400,
+    "height": 740,
+    "padding": {
+        "top": 20,
+        "bottom": 20,
+        "left": 220,
+        "right": 260
+    },
+    "autosize": "none",
+    "background": "#fafafa",
+    "signals": [
+        // =========================================================
+        // SECCIÓN 1: VARIABLES DE NEGOCIO (IDENTIDAD)
+        // =========================================================
+        {
+            "name": "heroNode",
+            "value": "Producción Total",
+            "description": "Nodo principal para centrado superior. Es el nodo donde se acumula el total"
+        },
+        {
+            "name": "unitLabel",
+            "value": "kg",
+            "description": "Unidad de medida para etiquetas y tooltips. Puede ser Kg, $, unds, etc."
+        },
+        // =========================================================
+        // SECCIÓN 2: MAPEO DE COLUMNAS (ADAPTACIÓN AL DATASET)
+        // Solo modificar 'value' con los nombres reales de tu tabla.
+        // =========================================================
+        {
+            "name": "col_Source",
+            "value": "Source",
+            "description": "Columna Origen."
+        },
+        {
+            "name": "col_Target",
+            "value": "Target",
+            "description": "Columna Destino."
+        },
+        {
+            "name": "col_Value",
+            "value": "Kg",
+            "description": "Columna de Valor numérico."
+        },
+        {
+            "name": "col_LevelS",
+            "value": "Nivel_Source",
+            "description": "Jerarquía Origen (1, 2...)."
+        },
+        {
+            "name": "col_LevelT",
+            "value": "Nivel_Target",
+            "description": "Jerarquía Destino."
+        },
+        {
+            "name": "col_Order",
+            "value": "Order",
+            "description": "Orden vertical manual (1=Arriba)."
+        },
+        // =========================================================
+        // SECCIÓN 3: PERSONALIZACIÓN VISUAL (LOOK & FEEL)
+        // =========================================================
+        {
+            "name": "nodeGap",
+            "value": 150,
+            "description": "Espaciado vertical entre nodos."
+        },
+        {
+            "name": "nodeThickness",
+            "value": 0.88,
+            "description": "Grosor de nodos (0.1 a 0.95)."
+        },
+        {
+            "name": "densityFactor",
+            "value": 0.35,
+            "description": "Densidad vertical del flujo."
+        },
+        // --- ESTILOS DE ETIQUETAS ---
+        {
+            "name": "labelFontSize",
+            "value": 20,
+            "description": "Tamaño fuente nombre."
+        },
+        {
+            "name": "labelFontWeight",
+            "value": "bold",
+            "description": "Peso fuente nombre."
+        },
+        {
+            "name": "labelColorMain",
+            "value": "#005ca5",
+            "description": "Color fuente nombre."
+        },
+        {
+            "name": "valueFontSize",
+            "value": 22,
+            "description": "Tamaño fuente valor."
+        },
+        {
+            "name": "valueFontWeight",
+            "value": "600",
+            "description": "Peso fuente valor."
+        },
+        {
+            "name": "valueColor",
+            "value": "#444",
+            "description": "Color fuente valor."
+        },
+        {
+            "name": "pctFontSize",
+            "value": 18,
+            "description": "Tamaño fuente %."
+        },
+        {
+            "name": "pctFontWeight",
+            "value": "bold",
+            "description": "Peso fuente %."
+        },
+        {
+            "name": "pctColor",
+            "value": "#888",
+            "description": "Color fuente %."
+        },
+        {
+            "name": "bgColorLabels",
+            "value": "rgba(250, 250, 250, 0.85)",
+            "description": "Fondo del recuadro."
+        },
+        // Cálculo interno de altura útil (No tocar)
+        {
+            "name": "rangePixels",
+            "update": "height * densityFactor"
+        },
+        // --- AUTORÍA ---
+        {
+            "name": "authorName",
+            "value": "Manuel Vásquez Abanto - Analytics Engineer & Development Lead",
+            "description": "Fira personal del autor"
+        },
+        {
+            "name": "githubUser",
+            "value": "github.com/manuelvasquezab",
+            "description": "Tu enlace de contacto/portfolio."
+        }
+    ],
+    "scales": [
+        // PALETA DE COLORES DE NODOS
+        {
+            "name": "node_colors",
+            "type": "ordinal",
+            "domain": [
+                "Fruta Cosechada",
+                "Fruta Comprada",
+                "Producción Total",
+                "Descarte Campo",
+                "Recepción Packing",
+                "Descarte Packing",
+                "Merma",
+                "Kilos Procesados",
+                "Kilos Exportables",
+                "Stock en Cámara",
+                "Venta Local (Donaciones)",
+                "Muestras Gratuitas"
+            ],
+            "range": [
+                "#60a5fa",
+                "#4A609E",
+                "#3b82f6",
+                "#ef4444",
+                "#10b981",
+                "#dc2626",
+                "#b91c1c",
+                "#19D950",
+                "#19D950",
+                "purple",
+                "#fb923c",
+                "blue"
+            ]
+        },
+        // PALETA DE COLORES DE LAS CINTAS
+        {
+            "name": "link_colors",
+            "type": "ordinal",
+            "domain": [
+                "Fruta Cosechada",
+                "Fruta Comprada",
+                "Recepción Packing",
+                "Descarte Campo",
+                "Kilos Procesados",
+                "Descarte Packing",
+                "Merma",
+                "Kilos Exportables",
+                "Stock en Cámara",
+                "Venta Local (Donaciones)",
+                "Muestras Gratuitas"
+            ],
+            "range": [
+                "#60a5fa",
+                "#4A609E",
+                "#3b82f6",
+                "#ef4444",
+                "#10b981",
+                "#b91c1c",
+                "#7f1d1d",
+                "#19D950",
+                "purple",
+                "#fb923c",
+                "blue"
+            ]
+        },
+        // Escala horizontal (Niveles)
+        {
+            "name": "x_scale",
+            "type": "band",
+            "range": "width",
+            "domain": {
+                "data": "nodes_calc",
+                "field": "level",
+                "sort": true
+            },
+            "paddingInner": {
+                "signal": "nodeThickness"
+            }
+        },
+        // Escala vertical (Volumen)
+        {
+            "name": "y_scale",
+            "type": "linear",
+            "range": [
+                0,
+                {
+                    "signal": "rangePixels"
+                }
+            ],
+            "domain": {
+                "data": "global_stats",
+                "field": "max_graph_vol"
+            },
+            "zero": true
+        }
+    ],
+    // =========================================================
+    // SECCIÓN 4: MOTOR MATEMÁTICO (CAJA NEGRA)
+    // No se recomienda modificar esta lógica.
+    // =========================================================
+    "data": [
+        {
+            "name": "dataset"
+        },
+        // 1. Capa de Normalización (Traducción de nombres de columna)
+        {
+            "name": "normalized_data",
+            "source": "dataset",
+            "transform": [
+                {
+                    "type": "formula",
+                    "as": "_source",
+                    "expr": "datum[col_Source]"
+                },
+                {
+                    "type": "formula",
+                    "as": "_target",
+                    "expr": "datum[col_Target]"
+                },
+                {
+                    "type": "formula",
+                    "as": "_value",
+                    "expr": "datum[col_Value]"
+                },
+                {
+                    "type": "formula",
+                    "as": "_lvl_s",
+                    "expr": "datum[col_LevelS]"
+                },
+                {
+                    "type": "formula",
+                    "as": "_lvl_t",
+                    "expr": "datum[col_LevelT]"
+                },
+                {
+                    "type": "formula",
+                    "as": "_order",
+                    "expr": "isValid(datum[col_Order]) ? datum[col_Order] : 9999"
+                }
+            ]
+        },
+        // 2. Cálculo de Totales por Nodo
+        {
+            "name": "nodes_flat",
+            "source": "normalized_data",
+            "transform": [
+                {
+                    "type": "fold",
+                    "fields": [
+                        "_source",
+                        "_target"
+                    ],
+                    "as": [
+                        "role",
+                        "name"
+                    ]
+                },
+                {
+                    "type": "formula",
+                    "as": "level",
+                    "expr": "datum.role === '_source' ? datum._lvl_s : datum._lvl_t"
+                },
+                {
+                    "type": "formula",
+                    "as": "is_in",
+                    "expr": "datum.role === '_target' ? datum._value : 0"
+                },
+                {
+                    "type": "formula",
+                    "as": "is_out",
+                    "expr": "datum.role === '_source' ? datum._value : 0"
+                },
+                {
+                    "type": "aggregate",
+                    "groupby": [
+                        "name",
+                        "level"
+                    ],
+                    "fields": [
+                        "is_in",
+                        "is_out",
+                        "_order"
+                    ],
+                    "ops": [
+                        "sum",
+                        "sum",
+                        "min"
+                    ],
+                    "as": [
+                        "sum_in",
+                        "sum_out",
+                        "manual_sort"
+                    ]
+                },
+                {
+                    "type": "formula",
+                    "as": "value",
+                    "expr": "max(datum.sum_in, datum.sum_out)"
+                }
+            ]
+        },
+        // 3. Estadísticas Globales (Para escalas dinámicas)
+        {
+            "name": "global_stats",
+            "source": "nodes_flat",
+            "transform": [
+                {
+                    "type": "aggregate",
+                    "groupby": [
+                        "level"
+                    ],
+                    "fields": [
+                        "value"
+                    ],
+                    "ops": [
+                        "sum"
+                    ],
+                    "as": [
+                        "col_vol"
+                    ]
+                },
+                {
+                    "type": "joinaggregate",
+                    "ops": [
+                        "max"
+                    ],
+                    "fields": [
+                        "col_vol"
+                    ],
+                    "as": [
+                        "max_graph_vol"
+                    ]
+                }
+            ]
+        },
+        // 4. Algoritmo de Posicionamiento (Orden Manual + Volumen)
+        {
+            "name": "nodes_calc",
+            "source": "nodes_flat",
+            "transform": [
+                {
+                    "type": "collect",
+                    "sort": {
+                        "field": [
+                            "level",
+                            "manual_sort",
+                            "value"
+                        ],
+                        "order": [
+                            "ascending",
+                            "ascending",
+                            "descending"
+                        ]
+                    }
+                },
+                {
+                    "type": "window",
+                    "sort": {
+                        "field": [
+                            "manual_sort",
+                            "value"
+                        ],
+                        "order": [
+                            "ascending",
+                            "descending"
+                        ]
+                    },
+                    "groupby": [
+                        "level"
+                    ],
+                    "ops": [
+                        "rank"
+                    ],
+                    "as": [
+                        "rank"
+                    ]
+                },
+                {
+                    "type": "window",
+                    "sort": {
+                        "field": [
+                            "manual_sort",
+                            "value"
+                        ],
+                        "order": [
+                            "ascending",
+                            "descending"
+                        ]
+                    },
+                    "groupby": [
+                        "level"
+                    ],
+                    "ops": [
+                        "sum"
+                    ],
+                    "fields": [
+                        "value"
+                    ],
+                    "as": [
+                        "sum_val"
+                    ]
+                },
+                {
+                    "type": "formula",
+                    "as": "val_start",
+                    "expr": "datum.sum_val - datum.value"
+                },
+                {
+                    "type": "formula",
+                    "as": "val_end",
+                    "expr": "datum.sum_val"
+                }
+            ]
+        },
+        // 5. Generación de Coordenadas de Nodos
+        {
+            "name": "nodes_render",
+            "source": "nodes_calc",
+            "transform": [
+                {
+                    "type": "formula",
+                    "as": "max_graph_vol",
+                    "expr": "data('global_stats')[0].max_graph_vol"
+                },
+                {
+                    "type": "formula",
+                    "as": "pct",
+                    "expr": "datum.value / datum.max_graph_vol"
+                },
+                {
+                    "type": "formula",
+                    "as": "h_px",
+                    "expr": "scale('y_scale', datum.value)"
+                },
+                {
+                    "type": "formula",
+                    "as": "start_px",
+                    "expr": "scale('y_scale', datum.val_start)"
+                },
+                {
+                    "type": "formula",
+                    "as": "y0_raw",
+                    "expr": "datum.start_px + ((datum.rank - 1) * nodeGap)"
+                },
+                {
+                    "type": "formula",
+                    "as": "y1_raw",
+                    "expr": "datum.y0_raw + datum.h_px"
+                },
+                {
+                    "type": "joinaggregate",
+                    "groupby": [
+                        "level"
+                    ],
+                    "ops": [
+                        "max"
+                    ],
+                    "fields": [
+                        "y1_raw"
+                    ],
+                    "as": [
+                        "col_px_height"
+                    ]
+                },
+                {
+                    "type": "formula",
+                    "as": "offset_y",
+                    "expr": "(height - datum.col_px_height) / 2"
+                },
+                {
+                    "type": "formula",
+                    "as": "y0",
+                    "expr": "datum.y0_raw + datum.offset_y"
+                },
+                {
+                    "type": "formula",
+                    "as": "y1",
+                    "expr": "datum.y1_raw + datum.offset_y"
+                },
+                {
+                    "type": "formula",
+                    "as": "x",
+                    "expr": "scale('x_scale', datum.level)"
+                },
+                {
+                    "type": "formula",
+                    "as": "width",
+                    "expr": "bandwidth('x_scale')"
+                }
+            ]
+        },
+        // 6. Filtro de Seguridad (Elimina nodos vacíos)
+        {
+            "name": "nodes_labels",
+            "source": "nodes_render",
+            "transform": [
+                {
+                    "type": "filter",
+                    "expr": "datum.value > 0"
+                }
+            ]
+        },
+        // 7. Enrutamiento de Cintas (Links)
+        {
+            "name": "links_render",
+            "source": "normalized_data",
+            "transform": [
+                {
+                    "type": "lookup",
+                    "from": "nodes_render",
+                    "key": "name",
+                    "fields": [
+                        "_source"
+                    ],
+                    "values": [
+                        "y0",
+                        "manual_sort",
+                        "value"
+                    ],
+                    "as": [
+                        "src_node_base",
+                        "src_sort",
+                        "src_val"
+                    ]
+                },
+                {
+                    "type": "lookup",
+                    "from": "nodes_render",
+                    "key": "name",
+                    "fields": [
+                        "_target"
+                    ],
+                    "values": [
+                        "y0",
+                        "manual_sort",
+                        "value"
+                    ],
+                    "as": [
+                        "tgt_node_base",
+                        "tgt_sort",
+                        "tgt_val"
+                    ]
+                },
+                {
+                    "type": "formula",
+                    "as": "thickness",
+                    "expr": "scale('y_scale', datum._value)"
+                },
+                {
+                    "type": "formula",
+                    "as": "link_color_key",
+                    "expr": "datum._lvl_s === 1 ? datum._source : datum._target"
+                },
+                {
+                    "type": "stack",
+                    "groupby": [
+                        "_source"
+                    ],
+                    "sort": {
+                        "field": [
+                            "_order",
+                            "tgt_val"
+                        ],
+                        "order": [
+                            "ascending",
+                            "descending"
+                        ]
+                    },
+                    "field": "thickness",
+                    "as": [
+                        "s_off0",
+                        "s_off1"
+                    ]
+                },
+                {
+                    "type": "stack",
+                    "groupby": [
+                        "_target"
+                    ],
+                    "sort": {
+                        "field": [
+                            "_order",
+                            "src_val"
+                        ],
+                        "order": [
+                            "ascending",
+                            "descending"
+                        ]
+                    },
+                    "field": "thickness",
+                    "as": [
+                        "t_off0",
+                        "t_off1"
+                    ]
+                },
+                {
+                    "type": "formula",
+                    "as": "y_src_mid",
+                    "expr": "datum.src_node_base + (datum.s_off0 + datum.s_off1)/2"
+                },
+                {
+                    "type": "formula",
+                    "as": "y_tgt_mid",
+                    "expr": "datum.tgt_node_base + (datum.t_off0 + datum.t_off1)/2"
+                },
+                {
+                    "type": "formula",
+                    "as": "x_src",
+                    "expr": "scale('x_scale', datum._lvl_s) + bandwidth('x_scale')"
+                },
+                {
+                    "type": "formula",
+                    "as": "x_tgt",
+                    "expr": "scale('x_scale', datum._lvl_t)"
+                },
+                {
+                    "type": "linkpath",
+                    "orient": "horizontal",
+                    "shape": "diagonal",
+                    "sourceX": "x_src",
+                    "sourceY": "y_src_mid",
+                    "targetX": "x_tgt",
+                    "targetY": "y_tgt_mid"
+                }
+            ]
+        }
+    ],
+    // =========================================================
+    // SECCIÓN 5: CAPA DE DIBUJO (MARKS)
+    // =========================================================
+    "marks": [
+        // --- 1. CINTAS (LINKS) ---
+        {
+            "type": "path",
+            "from": {
+                "data": "links_render"
+            },
+            "sort": {
+                "field": "thickness",
+                "order": "descending"
+            },
+            "encode": {
+                "update": {
+                    "path": {
+                        "field": "path"
+                    },
+                    "stroke": {
+                        "signal": "scale('link_colors', datum.link_color_key) || '#cbd5e1'"
+                    },
+                    "strokeWidth": {
+                        "field": "thickness"
+                    },
+                    "strokeOpacity": {
+                        "value": 0.45
+                    },
+                    "strokeCap": {
+                        "value": "butt"
+                    },
+                    "tooltip": {
+                        "signal": "{'Flujo': datum._source + ' ➔ ' + datum._target, 'Valor': format(datum._value, ',.0f') + ' ' + unitLabel, 'Proporción': format(datum._value / datum.src_val, '.1%') + ' del origen'}"
+                    }
+                },
+                "hover": {
+                    "strokeOpacity": {
+                        "value": 0.8
+                    }
+                }
+            }
+        },
+        // --- 2. NODOS (BARRAS) ---
+        {
+            "type": "rect",
+            "from": {
+                "data": "nodes_render"
+            },
+            "encode": {
+                "enter": {
+                    "cornerRadius": {
+                        "value": 2
+                    }
+                },
+                "update": {
+                    "x": {
+                        "field": "x"
+                    },
+                    "width": {
+                        "field": "width"
+                    },
+                    "y": {
+                        "field": "y0"
+                    },
+                    "y2": {
+                        "field": "y1"
+                    },
+                    "fill": {
+                        "signal": "scale('node_colors', datum.name) || '#94a3b8'"
+                    },
+                    "tooltip": {
+                        "signal": "{'Nodo': datum.name, 'Total': format(datum.value, ',.0f') + ' ' + unitLabel, 'Impacto Global': format(datum.pct, '.1%')}"
+                    }
+                }
+            }
+        },
+        // --- 3. GRUPO DE ETIQUETAS ---
+        {
+            "type": "group",
+            "name": "labelGroup",
+            "zindex": 1,
+            "from": {
+                "facet": {
+                    "data": "nodes_labels",
+                    "name": "labelFacet",
+                    "groupby": [
+                        "name",
+                        "value",
+                        "pct",
+                        "level",
+                        "x",
+                        "y0",
+                        "y1",
+                        "width"
+                    ]
+                }
+            },
+            "encode": {
+                "update": {
+                    "x": {
+                        "signal": "datum.name === heroNode ? datum.x + (datum.width / 2) : (datum.level == 1 ? datum.x - 8 : datum.x + datum.width + 8)"
+                    },
+                    "y": {
+                        "signal": "datum.name === heroNode ? datum.y0 - 45 : (datum.y0 + datum.y1) / 2"
+                    },
+                    "width": {
+                        "value": 0
+                    },
+                    "height": {
+                        "value": 0
+                    }
+                }
+            },
+            "marks": [
+                // Nombre del Nodo
+                {
+                    "type": "text",
+                    "from": {
+                        "data": "labelFacet"
+                    },
+                    "encode": {
+                        "update": {
+                            "x": {
+                                "value": 0
+                            },
+                            "y": {
+                                "value": -12
+                            },
+                            "fill": {
+                                "signal": "labelColorMain"
+                            },
+                            "fontWeight": {
+                                "signal": "labelFontWeight"
+                            },
+                            "fontSize": {
+                                "signal": "labelFontSize"
+                            },
+                            "baseline": {
+                                "value": "bottom"
+                            },
+                            "align": {
+                                "signal": "datum.name === heroNode ? 'center' : (datum.level == 1 ? 'right' : 'left')"
+                            },
+                            "text": {
+                                "field": "name"
+                            }
+                        }
+                    }
+                },
+                // Valor Numérico
+                {
+                    "type": "text",
+                    "from": {
+                        "data": "labelFacet"
+                    },
+                    "encode": {
+                        "update": {
+                            "x": {
+                                "value": 0
+                            },
+                            "y": {
+                                "value": 8
+                            },
+                            "fill": {
+                                "signal": "valueColor"
+                            },
+                            "fontSize": {
+                                "signal": "valueFontSize"
+                            },
+                            "fontWeight": {
+                                "signal": "valueFontWeight"
+                            },
+                            "baseline": {
+                                "value": "middle"
+                            },
+                            "align": {
+                                "signal": "datum.name === heroNode ? 'center' : (datum.level == 1 ? 'right' : 'left')"
+                            },
+                            "text": {
+                                "signal": "format(datum.value, ',.0f') + ' ' + unitLabel"
+                            }
+                        }
+                    }
+                },
+                // Porcentaje
+                {
+                    "type": "text",
+                    "from": {
+                        "data": "labelFacet"
+                    },
+                    "encode": {
+                        "update": {
+                            "x": {
+                                "value": 0
+                            },
+                            "y": {
+                                "value": 22
+                            },
+                            "fill": {
+                                "signal": "pctColor"
+                            },
+                            "fontSize": {
+                                "signal": "pctFontSize"
+                            },
+                            "fontWeight": {
+                                "signal": "pctFontWeight"
+                            },
+                            "baseline": {
+                                "value": "top"
+                            },
+                            "align": {
+                                "signal": "datum.name === heroNode ? 'center' : (datum.level == 1 ? 'right' : 'left')"
+                            },
+                            "text": {
+                                "signal": "format(datum.pct, '.1%')"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        // --- 4. FONDO DE ETIQUETAS ---
+        {
+            "type": "rect",
+            "from": {
+                "data": "labelGroup"
+            },
+            "encode": {
+                "update": {
+                    "x": {
+                        "field": "bounds.x1",
+                        "offset": -4
+                    },
+                    "x2": {
+                        "field": "bounds.x2",
+                        "offset": 4
+                    },
+                    "y": {
+                        "field": "bounds.y1",
+                        "offset": -2
+                    },
+                    "y2": {
+                        "field": "bounds.y2",
+                        "offset": 2
+                    },
+                    "fill": {
+                        "signal": "bgColorLabels"
+                    },
+                    "cornerRadius": {
+                        "value": 3
+                    }
+                }
+            }
+        },
+        // =========================================================
+        // SECCIÓN 6: MARCA DE AGUA Y AUTORÍA
+        // =========================================================
+        {
+            "type": "text",
+            "encode": {
+                "enter": {
+                    "fill": {
+                        "value": "#94a3b8"
+                    },
+                    "fontSize": {
+                        "value": 11
+                    },
+                    "fontWeight": {
+                        "value": "normal"
+                    }
+                },
+                "update": {
+                    "x": {
+                        "value": 10
+                    },
+                    "y": {
+                        "signal": "height"
+                    },
+                    "text": {
+                        "signal": "'Desarrollado por: ' + authorName"
+                    },
+                    "align": {
+                        "value": "left"
+                    }
+                }
+            }
+        },
+        {
+            "type": "text",
+            "encode": {
+                "enter": {
+                    "fill": {
+                        "value": "#3b82f6"
+                    },
+                    "fontSize": {
+                        "value": 11
+                    },
+                    "fontWeight": {
+                        "value": "bold"
+                    },
+                    "cursor": {
+                        "value": "pointer"
+                    }
+                },
+                "update": {
+                    "x": {
+                        "value": 10
+                    },
+                    "y": {
+                        "signal": "height + 20"
+                    },
+                    "text": {
+                        "signal": "'GitHub: ' + githubUser"
+                    },
+                    "align": {
+                        "value": "left"
+                    }
+                }
+            }
+        }
+    ]
+}

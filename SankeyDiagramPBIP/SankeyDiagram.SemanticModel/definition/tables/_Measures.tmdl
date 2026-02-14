@@ -1,0 +1,51 @@
+table _Measures
+	lineageTag: 33feaa33-11cf-4089-918a-eb4a645027d5
+
+	measure 'Total Produccion Campo' = ```
+			
+			
+			CALCULATE(
+			    SUM('dataset'[Kg]),
+			    'dataset'[Target] = "Producción Total" 
+			)
+			```
+		lineageTag: 91580863-c2a0-4cd1-bfa5-8bf38f9c98bf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Kilos Exportables' =
+			
+			CALCULATE(
+			    SUM('dataset'[Kg]),
+			    'dataset'[Target] = "Kilos Exportables"
+			)
+		lineageTag: f4c4ebe8-c654-49e7-9ffe-ba410e3260dc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '% Conversión a Kg Export' = ```
+			
+			VAR _percent = 
+			DIVIDE(
+			    [Total Kilos Exportables],
+			    [Total Produccion Campo],
+			    BLANK()
+			)
+			
+			RETURN
+			FORMAT(_percent, "0.0 %")
+			```
+		lineageTag: 21d363c2-659d-4ec6-bd62-4483b1c4e5bf
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Origen = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Placeholder = _t]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(Origen,{{"Placeholder", type text}}),
+				    #"Columnas quitadas" = Table.RemoveColumns(#"Tipo cambiado",{"Placeholder"})
+				in
+				    #"Columnas quitadas"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "SankeyDiagram"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8f2f5b78-001f-4fee-a420-f23d24089bfb"
+  }
+}

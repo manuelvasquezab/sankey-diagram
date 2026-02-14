@@ -1,0 +1,19 @@
+model Model
+	culture: es-ES
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: es-PE
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["_Measures","dataset"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table _Measures
+ref table dataset
+
+ref cultureInfo es-ES
+
