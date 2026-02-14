@@ -248,11 +248,13 @@
         {
             "name": "dataset"
         },
-        // 1. Capa de Normalización (Traducción de nombres de columna)
+        // 1. Capa de Normalización y "COMPACTACIÓN"
+        // (Traduce columnas y agrupa automáticamente los datos repetidos)
         {
             "name": "normalized_data",
             "source": "dataset",
             "transform": [
+                // A. Mapeo de columnas
                 {
                     "type": "formula",
                     "as": "_source",
@@ -265,9 +267,9 @@
                 },
                 {
                     "type": "formula",
-                    "as": "_value",
+                    "as": "_value_raw",
                     "expr": "datum[col_Value]"
-                },
+                }, // Paso temporal
                 {
                     "type": "formula",
                     "as": "_lvl_s",
@@ -282,6 +284,27 @@
                     "type": "formula",
                     "as": "_order",
                     "expr": "isValid(datum[col_Order]) ? datum[col_Order] : 9999"
+                },
+                // B. EL COMPACTADOR
+                // Agrupa por las claves del Sankey y suma los valores
+                {
+                    "type": "aggregate",
+                    "groupby": [
+                        "_source",
+                        "_target",
+                        "_lvl_s",
+                        "_lvl_t",
+                        "_order"
+                    ],
+                    "fields": [
+                        "_value_raw"
+                    ],
+                    "ops": [
+                        "sum"
+                    ],
+                    "as": [
+                        "_value"
+                    ]
                 }
             ]
         },

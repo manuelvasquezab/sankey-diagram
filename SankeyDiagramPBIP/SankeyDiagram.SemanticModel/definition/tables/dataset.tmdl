@@ -53,6 +53,22 @@ table dataset
 
 		annotation SummarizationSetBy = Automatic
 
+	column 'Categoría Nivel 1'
+		dataType: string
+		lineageTag: f0e1a441-f374-46c1-a042-9206428e43d6
+		summarizeBy: none
+		sourceColumn: Categoría Nivel 1
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Categoría Nivel 2'
+		dataType: string
+		lineageTag: 99c8e1ff-edb5-4895-9820-7872c87f1f67
+		summarizeBy: none
+		sourceColumn: Categoría Nivel 2
+
+		annotation SummarizationSetBy = Automatic
+
 	partition dataset = m
 		mode: import
 		source =
